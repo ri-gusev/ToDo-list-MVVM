@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity{
     private LinearLayout linearLayoutNotes;
     private FloatingActionButton floatingActionButtonAddNote;
 
-    private ArrayList<Note> notes = new ArrayList<>();
+    private Database database = Database.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +27,7 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
         initViews();
 
-        Random random = new Random();
-        for (int i = 0; i < 20; i++){
-            notes.add(new Note(i, "Note" + i, random.nextInt(3)));
-        }
-
-        showNotes();
-
+        //Go to activity where we can make new note
         floatingActionButtonAddNote.setOnClickListener(v -> {
             Intent intent = AddNoteActivity.newIntent(MainActivity.this);
             startActivity(intent);
@@ -41,18 +35,39 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-
+    //Replace method showNotes from onCreate to onResume because we should show notes when our
+    //activity gets focus.
+    //If this method would be in onCreate then when we click on floatingActionButton and then return
+    //back to main activity our note would not be added to main activity. This happened because
+    //onCreate caused when activity destroyed and then create a new one, but when we click on add
+    //button we don't destroy our activity, we just lose focus on main activity
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showNotes();
+    }
 
     private void showNotes(){
-        for (Note note : notes){
+        linearLayoutNotes.removeAllViews();
+        //Remove all notes and then we will add them again but
+        //with new one
+        for (Note note : database.getNotes()){
+            //Convert note_item.xml to view (our note)
             View view = getLayoutInflater().inflate(
-                    R.layout.note_item,
-                    linearLayoutNotes,
+                    R.layout.note_item,//What we want to convert
+                    linearLayoutNotes, //Where we want to add it
                     false);
 
+            view.setOnClickListener(v -> {
+                database.remove(note.getId());
+                showNotes();
+            });
+
+            //Add text to our note view
             TextView textViewNote = view.findViewById(R.id.TextViewNote);
             textViewNote.setText(note.getText());
 
+            //Set color to our note view
             int colorResId;
             switch (note.getPriority()){
                 case 0:
@@ -66,6 +81,7 @@ public class MainActivity extends AppCompatActivity{
             }
             int color = ContextCompat.getColor(this, colorResId);
             view.setBackgroundColor(color);
+
             linearLayoutNotes.addView(view);
         }
     }

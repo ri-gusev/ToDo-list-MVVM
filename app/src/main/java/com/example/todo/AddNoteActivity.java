@@ -26,6 +26,8 @@ public class AddNoteActivity extends AppCompatActivity {
 
     private Button buttonAddNote;
 
+    private Database database = Database.getInstance();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,16 +40,23 @@ public class AddNoteActivity extends AppCompatActivity {
         });
     }
 
+    //In this method we create a note and add it to out database
     private void saveNote(){
         String text = editTextEnterNote.getText().toString().trim();
-        if (text.isEmpty()){
+
+        if (text.isEmpty() || radioGroupPriority.getCheckedRadioButtonId() == -1){
             Toast.makeText(
                     this,
-                    "Please enter again",
+                    "Please fill all details",
                     Toast.LENGTH_SHORT
             ).show();
         } else {
             int priority = getPriority();
+            int id = database.getNotes().size();
+            Note note = new Note(id, text, priority);
+            database.add(note);
+
+            finish();
         }
     }
 
