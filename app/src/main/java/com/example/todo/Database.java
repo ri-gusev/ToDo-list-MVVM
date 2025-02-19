@@ -7,6 +7,7 @@ public class Database {
     ArrayList<Note> notes = new ArrayList<>();
 
     private static Database instance = null;
+
     //This is singleton
     //Now we don't create new database when we add new note
     public static Database getInstance(){

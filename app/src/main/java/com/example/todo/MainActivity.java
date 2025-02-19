@@ -3,20 +3,17 @@ package com.example.todo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 public class MainActivity extends AppCompatActivity{
 
-    private LinearLayout linearLayoutNotes;
+    private RecyclerView recyclerViewNotes;
     private FloatingActionButton floatingActionButtonAddNote;
 
     private Database database = Database.getInstance();
@@ -48,14 +45,14 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void showNotes(){
-        linearLayoutNotes.removeAllViews();
+        recyclerViewNotes.removeAllViews();
         //Remove all notes and then we will add them again but
         //with new one
         for (Note note : database.getNotes()){
             //Convert note_item.xml to view (our note)
             View view = getLayoutInflater().inflate(
                     R.layout.note_item,//What we want to convert
-                    linearLayoutNotes, //Where we want to add it
+                    recyclerViewNotes, //Where we want to add it
                     false);
 
             view.setOnClickListener(v -> {
@@ -82,12 +79,12 @@ public class MainActivity extends AppCompatActivity{
             int color = ContextCompat.getColor(this, colorResId);
             view.setBackgroundColor(color);
 
-            linearLayoutNotes.addView(view);
+            recyclerViewNotes.addView(view);
         }
     }
 
     private void initViews(){
-        linearLayoutNotes = findViewById(R.id.LinearLayoutNotes);
+        recyclerViewNotes = findViewById(R.id.LinearLayoutNotes);
         floatingActionButtonAddNote = findViewById(R.id.ButtonAddNotes);
     }
 }
