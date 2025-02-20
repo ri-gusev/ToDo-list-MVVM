@@ -17,6 +17,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
 
     public void setNotes(ArrayList<Note> notes) {
         this.notes = notes;
+        notifyDataSetChanged();
     }
 
     @Override

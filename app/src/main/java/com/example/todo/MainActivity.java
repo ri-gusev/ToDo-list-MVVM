@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -15,7 +16,7 @@ public class MainActivity extends AppCompatActivity{
 
     private RecyclerView recyclerViewNotes;
     private FloatingActionButton floatingActionButtonAddNote;
-
+    private NotesAdapter notesAdapter; //link on our recyclerView adapter
     private Database database = Database.getInstance();
 
     @Override
@@ -23,6 +24,9 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
+
+        notesAdapter = new NotesAdapter(); //initialize recyclerView adapter
+        recyclerViewNotes.setAdapter(notesAdapter); //add to recyclerView out adapter
 
         //Go to activity where we can make new note
         floatingActionButtonAddNote.setOnClickListener(v -> {
@@ -45,46 +49,11 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void showNotes(){
-        recyclerViewNotes.removeAllViews();
-        //Remove all notes and then we will add them again but
-        //with new one
-        for (Note note : database.getNotes()){
-            //Convert note_item.xml to view (our note)
-            View view = getLayoutInflater().inflate(
-                    R.layout.note_item,//What we want to convert
-                    recyclerViewNotes, //Where we want to add it
-                    false);
-
-            view.setOnClickListener(v -> {
-                database.remove(note.getId());
-                showNotes();
-            });
-
-            //Add text to our note view
-            TextView textViewNote = view.findViewById(R.id.TextViewNote);
-            textViewNote.setText(note.getText());
-
-            //Set color to our note view
-            int colorResId;
-            switch (note.getPriority()){
-                case 0:
-                    colorResId = android.R.color.holo_green_light;
-                    break;
-                case 1:
-                    colorResId = android.R.color.holo_orange_light;
-                    break;
-                default:
-                    colorResId = android.R.color.holo_red_light;
-            }
-            int color = ContextCompat.getColor(this, colorResId);
-            view.setBackgroundColor(color);
-
-            recyclerViewNotes.addView(view);
-        }
+        notesAdapter.setNotes(database.getNotes());
     }
 
     private void initViews(){
-        recyclerViewNotes = findViewById(R.id.LinearLayoutNotes);
+        recyclerViewNotes = findViewById(R.id.RecyclerViewNotes);
         floatingActionButtonAddNote = findViewById(R.id.ButtonAddNotes);
     }
 }
