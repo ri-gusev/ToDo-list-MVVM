@@ -26,6 +26,15 @@ public class MainActivity extends AppCompatActivity{
         initViews();
 
         notesAdapter = new NotesAdapter(); //initialize recyclerView adapter
+
+        notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
+            @Override
+            public void onNoteClick(Note note) {
+                database.remove(note.getId());
+                showNotes();
+            }
+        });
+
         recyclerViewNotes.setAdapter(notesAdapter); //add to recyclerView out adapter
 
         //Go to activity where we can make new note

@@ -14,10 +14,26 @@ import java.util.ArrayList;
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHolder> {
 
     private ArrayList<Note> notes = new ArrayList<>();
+    private OnNoteClickListener onNoteClickListener;
+
+    public void setOnNoteClickListener(OnNoteClickListener onNoteClickListener) {
+        this.onNoteClickListener = onNoteClickListener;
+    }
 
     public void setNotes(ArrayList<Note> notes) {
         this.notes = notes;
         notifyDataSetChanged();
+    }
+
+    @NonNull
+    @Override
+    public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(
+                R.layout.note_item,
+                parent,
+                false);
+
+        return new NoteViewHolder(view);
     }
 
     @Override
@@ -38,19 +54,15 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
             default:
                 colorResId = android.R.color.holo_red_light;
         }
-        int color = ContextCompat.getColor(viewHolder.textViewNote.getContext(), colorResId);
+        int color = ContextCompat.getColor(viewHolder.itemView.getContext(), colorResId);
         viewHolder.textViewNote.setBackgroundColor(color);
 
-    }
+        viewHolder.itemView.setOnClickListener(v -> {
+            if (onNoteClickListener != null) {
+                onNoteClickListener.onNoteClick(note);
+            }
+        });
 
-    @NonNull
-    @Override
-    public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(
-                R.layout.note_item,
-                parent,
-                false);
-        return new NoteViewHolder(view);
     }
 
     @Override
@@ -68,4 +80,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
             textViewNote = itemView.findViewById(R.id.TextViewNote);
         }
     }
+
+    interface OnNoteClickListener{
+        void onNoteClick(Note note);
+    }
+
 }
