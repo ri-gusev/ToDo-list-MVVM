@@ -17,12 +17,20 @@ public class Database {
         return instance;
     }
 
+    private Database(){
+        Random random = new Random();
+        for (int i = 0; i < 20; i++) {
+            notes.add(new Note(i, "Note" + i, random.nextInt(3)));
+        }
+    }
+
     public void add(Note note){
         notes.add(note);
     }
 
     public void remove(int id){
-        for (Note note : notes){
+        for (int i = 0; i < notes.size(); i++) {
+            Note note = notes.get(i);
             if (note.getId() == id){
                 notes.remove(note);
             }
