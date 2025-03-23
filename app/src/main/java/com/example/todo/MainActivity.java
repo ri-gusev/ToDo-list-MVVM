@@ -14,17 +14,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Collections;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity{
 
     private RecyclerView recyclerViewNotes;
     private FloatingActionButton floatingActionButtonAddNote;
     private NotesAdapter notesAdapter; //link on our recyclerView adapter
-    private Database database = Database.getInstance();
+    private NotesDatabase notesDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        notesDatabase = NotesDatabase.getInstance(getApplication());
+
         initViews();
 
         notesAdapter = new NotesAdapter(); //initialize recyclerView adapter
@@ -52,7 +58,7 @@ public class MainActivity extends AppCompatActivity{
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
                 Note note = notesAdapter.getNotes().get(position);
-                database.remove(note.getId());
+                notesDatabase.notesDao().removeNote(note.getId());
                 showNotes();
             }
         });
@@ -79,7 +85,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void showNotes(){
-        notesAdapter.setNotes(database.getNotes());
+        notesAdapter.setNotes(notesDatabase.notesDao().getNotes());
     }
 
     private void initViews(){
