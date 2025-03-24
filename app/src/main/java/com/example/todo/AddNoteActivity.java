@@ -26,13 +26,16 @@ public class AddNoteActivity extends AppCompatActivity {
 
     private Button buttonAddNote;
 
-    private Database database = Database.getInstance();
+    private NotesDatabase notesDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_note);
+
+        notesDatabase = NotesDatabase.getInstance(getApplication());
+
         initViews();
 
         buttonAddNote.setOnClickListener(view -> {
@@ -53,15 +56,8 @@ public class AddNoteActivity extends AppCompatActivity {
         } else {
             int priority = getPriority();
 
-            // id = id of last note + 1
-            int id = 0;
-            if (database.getNotes().isEmpty()){
-                id = 1;
-            } else {
-                id = database.getNotes().get(database.getNotes().size()-1).getId() + 1;
-            }
-            Note note = new Note(id, text + id, priority);
-            database.add(note);
+            Note note = new Note(text, priority);
+            notesDatabase.notesDao().addNote(note);
 
             finish();
         }

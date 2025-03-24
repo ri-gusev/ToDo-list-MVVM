@@ -1,6 +1,8 @@
 package com.example.todo;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Insert;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "notes")
@@ -15,6 +17,11 @@ public class Note {
         this.id = id;
         this.text = text;
         this.priority = priority;
+    }
+
+    @Ignore
+    public Note(String text, int priority){
+        this(0, text, priority);
     }
 
     public int getId(){
