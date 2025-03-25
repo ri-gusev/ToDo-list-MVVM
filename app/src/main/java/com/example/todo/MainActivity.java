@@ -25,20 +25,21 @@ public class MainActivity extends AppCompatActivity{
     private RecyclerView recyclerViewNotes;
     private FloatingActionButton floatingActionButtonAddNote;
     private NotesAdapter notesAdapter; //link on our recyclerView adapter
-    private NotesDatabase notesDatabase;
+
+    private MainViewActivity viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        notesDatabase = NotesDatabase.getInstance(getApplication());
+        viewModel = new MainViewActivity(getApplication()); //I will fix this line later
 
         initViews();
 
         notesAdapter = new NotesAdapter(); //initialize recyclerView adapter
 
-        notesDatabase.notesDao().getNotes().observe(this, new Observer<List<Note>>() {
+        viewModel.getNotes().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(List<Note> notes) {
                 notesAdapter.setNotes(notes);
@@ -68,14 +69,7 @@ public class MainActivity extends AppCompatActivity{
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
                 Note note = notesAdapter.getNotes().get(position);
-
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        notesDatabase.notesDao().removeNote(note.getId());
-                    }
-                });
-                thread.start();
+                viewModel.remove(note);
             }
         });
         itemTouchHelper.attachToRecyclerView(recyclerViewNotes);
