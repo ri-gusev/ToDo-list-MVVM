@@ -2,6 +2,8 @@ package com.example.todo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,6 +25,8 @@ public class MainActivity extends AppCompatActivity{
     private FloatingActionButton floatingActionButtonAddNote;
     private NotesAdapter notesAdapter; //link on our recyclerView adapter
     private NotesDatabase notesDatabase;
+
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +62,20 @@ public class MainActivity extends AppCompatActivity{
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
                 Note note = notesAdapter.getNotes().get(position);
-                notesDatabase.notesDao().removeNote(note.getId());
-                showNotes();
+
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notesDatabase.notesDao().removeNote(note.getId());
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                showNotes();
+                            }
+                        });
+                    }
+                });
+                thread.start();
             }
         });
         itemTouchHelper.attachToRecyclerView(recyclerViewNotes);
@@ -85,7 +101,20 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void showNotes(){
-        notesAdapter.setNotes(notesDatabase.notesDao().getNotes());
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<Note> noteList = notesDatabase.notesDao().getNotes();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notesAdapter.setNotes(noteList);
+                    }
+                });
+            }
+        });
+        thread.start();
     }
 
     private void initViews(){

@@ -3,6 +3,8 @@ package com.example.todo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -27,6 +29,8 @@ public class AddNoteActivity extends AppCompatActivity {
     private Button buttonAddNote;
 
     private NotesDatabase notesDatabase;
+
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +61,22 @@ public class AddNoteActivity extends AppCompatActivity {
             int priority = getPriority();
 
             Note note = new Note(text, priority);
-            notesDatabase.notesDao().addNote(note);
 
-            finish();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    notesDatabase.notesDao().addNote(note);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            finish();
+                        }
+                    });
+                }
+            });
+            thread.start();
         }
+
     }
 
     private int getPriority(){

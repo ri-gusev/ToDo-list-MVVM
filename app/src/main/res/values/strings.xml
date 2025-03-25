@@ -6,4 +6,5 @@
     <string name="high">High</string>
     <string name="choose_priority_for_your_note">Choose priority for your note:</string>
     <string name="add_note">Add note</string>
+    <string name="your_notes">Your notes:</string>
 </resources>
