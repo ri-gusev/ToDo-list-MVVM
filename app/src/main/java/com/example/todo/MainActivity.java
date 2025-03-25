@@ -2,22 +2,16 @@ package com.example.todo;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.View;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity{
@@ -26,14 +20,14 @@ public class MainActivity extends AppCompatActivity{
     private FloatingActionButton floatingActionButtonAddNote;
     private NotesAdapter notesAdapter; //link on our recyclerView adapter
 
-    private MainViewActivity viewModel;
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        viewModel = new MainViewActivity(getApplication()); //I will fix this line later
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         initViews();
 
@@ -43,13 +37,6 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onChanged(List<Note> notes) {
                 notesAdapter.setNotes(notes);
-            }
-        });
-
-        //so far, we will not delete the note when clicking. Let's leave this method empty.
-        notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
-            @Override
-            public void onNoteClick(Note note) {
             }
         });
 

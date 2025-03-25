@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 public class AddNoteActivity extends AppCompatActivity {
 
@@ -28,9 +30,7 @@ public class AddNoteActivity extends AppCompatActivity {
 
     private Button buttonAddNote;
 
-    private NotesDatabase notesDatabase;
-
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private AddNoteViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +38,16 @@ public class AddNoteActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_note);
 
-        notesDatabase = NotesDatabase.getInstance(getApplication());
+        viewModel = new ViewModelProvider(this).get(AddNoteViewModel.class);
+
+        viewModel.getShouldCloseActivity().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean shouldClose) {
+                if (shouldClose) {
+                    finish();
+                }
+            }
+        });
 
         initViews();
 
@@ -48,10 +57,10 @@ public class AddNoteActivity extends AppCompatActivity {
     }
 
     //In this method we create a note and add it to out database
-    private void saveNote(){
+    private void saveNote() {
         String text = editTextEnterNote.getText().toString().trim();
 
-        if (text.isEmpty() || radioGroupPriority.getCheckedRadioButtonId() == -1){
+        if (text.isEmpty() || radioGroupPriority.getCheckedRadioButtonId() == -1) {
             Toast.makeText(
                     this,
                     "Please fill all details",
@@ -59,32 +68,17 @@ public class AddNoteActivity extends AppCompatActivity {
             ).show();
         } else {
             int priority = getPriority();
-
             Note note = new Note(text, priority);
-
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    notesDatabase.notesDao().addNote(note);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            finish();
-                        }
-                    });
-                }
-            });
-            thread.start();
+            viewModel.AddNote(note);
         }
-
     }
 
-    private int getPriority(){
+    private int getPriority() {
         int priority;
 
-        if (radioButtonPriority0.isChecked()){
+        if (radioButtonPriority0.isChecked()) {
             priority = 0;
-        } else if (radioButtonPriority1.isChecked()){
+        } else if (radioButtonPriority1.isChecked()) {
             priority = 1;
         } else {
             priority = 2;
@@ -93,7 +87,7 @@ public class AddNoteActivity extends AppCompatActivity {
         return priority;
     }
 
-    private void initViews(){
+    private void initViews() {
         editTextEnterNote = findViewById(R.id.EditTextEnterNote);
 
         radioButtonPriority0 = findViewById(R.id.RadioButtonPriority0);
@@ -105,7 +99,7 @@ public class AddNoteActivity extends AppCompatActivity {
 
     }
 
-    public static Intent newIntent(Context context){
+    public static Intent newIntent(Context context) {
         return new Intent(context, AddNoteActivity.class);
     }
 

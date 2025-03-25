@@ -8,11 +8,11 @@ import androidx.lifecycle.LiveData;
 
 import java.util.List;
 
-public class MainViewActivity extends AndroidViewModel {
+public class MainViewModel extends AndroidViewModel {
 
     private NotesDatabase notesDatabase;
 
-    public MainViewActivity(@NonNull Application application) {
+    public MainViewModel(@NonNull Application application) {
         super(application);
         notesDatabase = NotesDatabase.getInstance(application);
     }
