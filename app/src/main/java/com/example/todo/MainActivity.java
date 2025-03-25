@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,8 +27,6 @@ public class MainActivity extends AppCompatActivity{
     private NotesAdapter notesAdapter; //link on our recyclerView adapter
     private NotesDatabase notesDatabase;
 
-    private Handler handler = new Handler(Looper.getMainLooper());
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +37,13 @@ public class MainActivity extends AppCompatActivity{
         initViews();
 
         notesAdapter = new NotesAdapter(); //initialize recyclerView adapter
+
+        notesDatabase.notesDao().getNotes().observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notes) {
+                notesAdapter.setNotes(notes);
+            }
+        });
 
         //so far, we will not delete the note when clicking. Let's leave this method empty.
         notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
@@ -67,12 +73,6 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void run() {
                         notesDatabase.notesDao().removeNote(note.getId());
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                showNotes();
-                            }
-                        });
                     }
                 });
                 thread.start();
@@ -85,40 +85,11 @@ public class MainActivity extends AppCompatActivity{
             Intent intent = AddNoteActivity.newIntent(MainActivity.this);
             startActivity(intent);
         });
-
-    }
-
-    //Replace method showNotes from onCreate to onResume because we should show notes when our
-    //activity gets focus.
-    //If this method would be in onCreate then when we click on floatingActionButton and then return
-    //back to main activity our note would not be added to main activity. This happened because
-    //onCreate caused when activity destroyed and then create a new one, but when we click on add
-    //button we don't destroy our activity, we just lose focus on main activity
-    @Override
-    protected void onResume() {
-        super.onResume();
-        showNotes();
-    }
-
-    private void showNotes(){
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<Note> noteList = notesDatabase.notesDao().getNotes();
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        notesAdapter.setNotes(noteList);
-                    }
-                });
-            }
-        });
-        thread.start();
     }
 
     private void initViews(){
         recyclerViewNotes = findViewById(R.id.RecyclerViewNotes);
         floatingActionButtonAddNote = findViewById(R.id.ButtonAddNotes);
     }
+
 }
