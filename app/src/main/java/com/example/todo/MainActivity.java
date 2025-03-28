@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity{
         });
         itemTouchHelper.attachToRecyclerView(recyclerViewNotes);
         
-        //Go to activity where we can make new note
+        //Go to activity where we can make new note-
         floatingActionButtonAddNote.setOnClickListener(v -> {
             Intent intent = AddNoteActivity.newIntent(MainActivity.this);
             startActivity(intent);
