@@ -68,6 +68,12 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.refreshData();
+    }
+
     private void initViews(){
         recyclerViewNotes = findViewById(R.id.RecyclerViewNotes);
         floatingActionButtonAddNote = findViewById(R.id.ButtonAddNotes);
